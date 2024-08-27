@@ -12,18 +12,12 @@ enum Type {
   GAS
 }
 
-model Customer {
-  customer_code String    @id
-  measure       Measure[]
-}
-
 model Measure {
   uuid          String   @id @default(uuid()) @db.VarChar(36)
-  customer      Customer @relation(fields: [customer_code], references: [customer_code])
   customer_code String
   datetime      DateTime
   type          Type
   has_confirmed Boolean
-  image_url     String
+  image_url     String   @db.VarChar
   createdAt     DateTime @default(now())
 }
