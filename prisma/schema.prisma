@@ -18,6 +18,7 @@ model Measure {
   datetime      DateTime
   type          Type
   has_confirmed Boolean
+  value         Int
   image_url     String   @db.VarChar
   createdAt     DateTime @default(now())
 }

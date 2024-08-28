@@ -13,3 +13,8 @@ export function BadRequest(metodo: FastifyReply, error: string, codeError: strin
         error_description: error
       });
 }
+
+//Função para converter um texto para float
+export function ConvertInteger(text: string) {
+    return parseInt(text,10);
+}
