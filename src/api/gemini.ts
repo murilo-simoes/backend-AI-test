@@ -8,7 +8,7 @@ export async function GetGeminiResponse(link: string){
   //Variáveis para conectar com os serviços do Google
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   const fileManager = new GoogleAIFileManager(process.env.GEMINI_API_KEY!);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro"});
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
   //Nome para salvar a imagem temporariamente
   const nomeImagem = `temp-${uuidv4()}.png`
