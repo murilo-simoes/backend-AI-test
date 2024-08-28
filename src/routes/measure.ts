@@ -9,7 +9,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
 
     const VALUES = ["WATER", "GAS"] as const;
 
-    //#region Rota para UPLOAD das imagens
+    //#region POST  - /upload
     fastify.post('/upload', async (request: FastifyRequest, reply: FastifyReply) => {
         
         //Define o corpo da requisição, seus tipos e o texto de retorno caso aconteça um erro
@@ -25,18 +25,17 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
             }),
             customer_code: z.string({invalid_type_error: "Erro - O código do cliente tem que ser uma string." }),
             measure_datetime: z.string().datetime().pipe(z.coerce.date()),
-            measure_type: z.string()
-                .refine((val) => VALUES.includes(val as typeof VALUES[number]), {
-                    message: "Erro - O tipo de medida fornecido é inválido. ('WATER' ou 'GAS')",
-                })
+            measure_type: z.string({invalid_type_error: "Erro - O tipo de medição tem que ser uma string." })
+            .refine((val) => VALUES.includes(val as typeof VALUES[number]), {
+                message: "Erro - Tipo de medição não permitida",
+            })
         })
 
         // Validação do tipo de dado informado
         const parseResult = createMeasureBody.safeParse(request.body);
         if (!parseResult.success) {
             const firstError = parseResult.error.errors[0]
-
-            return BadRequest(reply, firstError.message.startsWith("Erro") ? firstError.message : "Tipos de dados inseridos de um ou mais parâmetros estão incorretos", "INVALID_DATA", 400)
+            return BadRequest(reply, firstError.message.startsWith("Erro") ? firstError.message : "Um ou mais parâmetros estão incorretos ou não foram informados", "INVALID_DATA", 400)
         }
 
         //Se a validação for bem sucedida, extrai os valores
@@ -88,7 +87,6 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
             }
         })
 
-
         //Retorna o resultado
         return reply.status(200).send({
             "image_url": image_url,
@@ -100,8 +98,8 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
 
     //#endregion
 
-    //#region Rota para CONFIRMAR o valor lido pelo LLM
-    fastify.post('/confirm', async (request: FastifyRequest, reply: FastifyReply) => {
+    //#region PATCH - /confirm
+    fastify.patch('/confirm', async (request: FastifyRequest, reply: FastifyReply) => {
         
         //Define o corpo da requisição, seus tipos e o texto de retorno caso aconteça um erro
         const createMeasureBody = z.object({
@@ -117,12 +115,16 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         const parseResult = createMeasureBody.safeParse(request.body);
         if (!parseResult.success) {
             const firstError = parseResult.error.errors[0]
-
-            return BadRequest(reply, firstError.message.startsWith("Erro") ? firstError.message : "Tipos de dados inseridos de um ou mais parâmetros estão incorretos", "INVALID_DATA", 400)
+            return BadRequest(reply, firstError.message.startsWith("Erro") ? firstError.message : "Um ou mais parâmetros estão incorretos ou não foram informados", "INVALID_DATA", 400)
         }
 
         //Se a validação for bem sucedida, extrai os valores
         const { measure_uuid, confirmed_value } = createMeasureBody.parse(request.body);
+
+        //Validações dos parâmetros extraidos
+        if (EmptyOrNull(measure_uuid.trim()) || !measure_uuid) {
+            return BadRequest(reply, "Um ou mais parâmetros não foram informados corretamente", "INVALID_DATA", 400)
+        }        
 
         //Verifica se o uuid de leitura informado existe
         const measureUuidExist = await prisma.measure.findUnique({
@@ -132,14 +134,91 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         })
 
         if(!measureUuidExist){
-            return BadRequest(reply, "Leitura do mês não encontrada", "MEASURE_NOT_FOUND", 404)
+            return BadRequest(reply, "Leitura do mês já realizada", "MEASURE_NOT_FOUND", 404)
         }
 
         //Verifica se o código de leitura já foi confirmado
         if(measureUuidExist.has_confirmed === true){
             return BadRequest(reply, "Leitura do mês já realizada", "CONFIRMATION_DUPLICATE", 409)
         }
+
+        //Salva no banco de dados o novo valor informado
+        await prisma.measure.update({
+            where:{
+                uuid:measure_uuid,
+            },
+            data:{
+                    value:confirmed_value,
+                    has_confirmed:true
+            }
+        })
+
+        //Retorna o resultado
+        return reply.status(200).send({
+            "success": true
+        })
     })
+
+    //#endregion
+
+    //#region GET   - /:customer_code/list?measure_type
+
+    fastify.get('/:customer_code/list', async (request: FastifyRequest, reply: FastifyReply) => {
+
+         //Pega o parâmetro da rota - customer_code
+        const getMeasureParam = z.object({
+            customer_code: z.string(),
+          });
+        
+        //Pega o query parâmeter - measure_type
+        const getMeasureQuery = z.object({
+            measure_type: z.string().toUpperCase()
+            .refine((val) => VALUES.includes(val as typeof VALUES[number]), {
+                message: "Tipo de medição não permitida",
+            }).optional()
+        })
+        
+
+        //Validação do query parameter - measure_type
+        const parseResultQuery = getMeasureQuery.safeParse(request.query);
+        if (!parseResultQuery.success) {
+            const firstError = parseResultQuery.error.errors[0]
+            return BadRequest(reply, firstError.message, "INVALID_TYPE", 400)
+        }
+
+        //Se a validação for bem sucedida, extrai os valores
+        const { customer_code } = getMeasureParam.parse(request.params);
+        const { measure_type } = getMeasureQuery.parse(request.query);
+
+        //Busca os registros no banco de dados
+        const measures = await prisma.measure.findMany({
+            where:{
+                customer_code:customer_code.trim(),
+                type: measure_type! as Type
+            }
+        })
+
+        //Verifica se encontrou registros
+        if(measures.length === 0){
+            return BadRequest(reply, "Nenhuma leitura encontrada", "MEASURES_NOT_FOUND", 404)
+        }
+        
+
+        //Retorna o resultado
+        return reply.status(200).send({
+            customer_code: customer_code,
+            measures: measures.map((item) => {
+              return {
+                measure_uuid: item.uuid,
+                measure_datetime: item.datetime,
+                measure_type: item.type,
+                has_confirmed:item.has_confirmed,
+                image_url: item.image_url
+              };
+            }),
+          });
+        }
+    )
 
     //#endregion
 }

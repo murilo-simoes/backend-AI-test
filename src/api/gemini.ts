@@ -40,7 +40,7 @@ export async function GetGeminiResponse(link: string){
   fs.unlinkSync(nomeImagem);
 
   //Verifica se ele conseguiu identificar o medidor na foto, caso não, retorna erro
-  if(result.response.text() === "ERRO"){
+  if(result.response.text().trim() === "ERRO"){
     return {image_url :"ERRO",
             measure_value: "ERRO"}
   }
