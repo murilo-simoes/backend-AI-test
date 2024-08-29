@@ -4,7 +4,7 @@
 
   - `Node.Js`
   - `Prisma`
-  - `TypeScrip`
+  - `TypeScript`
   - `Fastify`
   - `Postgresql`
   - `Cors`
