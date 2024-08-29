@@ -9,7 +9,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
 
     const VALUES = ["WATER", "GAS"] as const;
 
-    //#region POST  - /upload
+    //#region POST  - /upload ----------------------------------------------------------------------------------------------------------------------------------------------
     fastify.post('/upload', async (request: FastifyRequest, reply: FastifyReply) => {
         
         //Define o corpo da requisição, seus tipos e o texto de retorno caso aconteça um erro
@@ -54,7 +54,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
                 customer_code: customer_code,
                 datetime: {
                     gte: new Date(`${year}-${month.toString().padStart(2, '0')}-01T00:00:00Z`),
-                    lt: new Date(`${year}-${(month + 1).toString().padStart(2, '0')}-01T00:00:00Z`)
+                    lt: new Date(`${month === 12 ? year + 1 : year}-${month === 12 ? '01' : (month + 1).toString().padStart(2, '0')}-01T00:00:00Z`)
                 },
                 type: measure_type as Type
             }
@@ -93,7 +93,8 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
 
     //#endregion
 
-    //#region PATCH - /confirm
+
+    //#region PATCH - /confirm ----------------------------------------------------------------------------------------------------------------------------------------------
     fastify.patch('/confirm', async (request: FastifyRequest, reply: FastifyReply) => {
         
         //Define o corpo da requisição, seus tipos e o texto de retorno caso aconteça um erro
@@ -156,8 +157,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
 
     //#endregion
 
-    //#region GET   - /:customer_code/list?measure_type
-
+    //#region GET   - /:customer_code/list?measure_type -----------------------------------------------------------------------------------------------------------------------------
     fastify.get('/:customer_code/list', async (request: FastifyRequest, reply: FastifyReply) => {
 
          //Pega o parâmetro da rota - customer_code
