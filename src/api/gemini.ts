@@ -31,7 +31,7 @@ export async function GetGeminiResponse(link: string){
         fileUri: uploadResponse.file.uri
       }
     },
-    { text: "Caso seja uma foto de um medidor, me diga quanto está a medição desse medidor, me responda com apenas o número INTEIRO da medição e nada a mais. Caso não seja a foto de um medidor, responda apenas com 'ERRO' e mais nada. Seja direto" },
+    { text: "Preciso que a resposta seja precisa. É um medidor de água ou gás? Se sim, me retorna o valor que está no medidor. Caso o contrário, me retorne a palavra ERRO. Eu quero apenas o valor do medidor ou a palavra ERRO, nada além disso." },
   ]);
 
   //Deleta a imagem que salvou temporariamente
@@ -39,8 +39,8 @@ export async function GetGeminiResponse(link: string){
 
   //Verifica se ele conseguiu identificar o medidor na foto, caso não, retorna erro
   if(result.response.text().trim() === "ERRO"){
-    return {image_url :"ERRO",
-            measure_value: "ERRO"}
+    return {image_url :uploadResponse.file.uri,
+      text_value: "0"}
   }
 
   //Retorna o valor da medição com o link temporario da imagem

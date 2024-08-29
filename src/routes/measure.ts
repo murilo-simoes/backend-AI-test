@@ -67,13 +67,8 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         //Chama a API da Gemini 
         const { image_url, text_value } = await GetGeminiResponse(image)
 
-        //Verifica se a LLM conseguiu identificar como um medidor, caso não, retorna um BadRequest
-        let measure_value : number = 0;
-        if(image_url?.trim() === "ERRO" || text_value?.trim() === "ERRO"){
-            return BadRequest(reply, "Não foi identificado a medição na imagem enviada", "INVALID_DATA", 400)
-        }else{
-            measure_value = ConvertInteger(text_value!);
-        }
+        //Verifica se a LLM conseguiu identificar como um medidor, caso não, retorna o número 0
+        let measure_value : number = ConvertInteger(text_value!);
 
         //Realiza a criação no banco de dados
         const measure = await prisma.measure.create({
