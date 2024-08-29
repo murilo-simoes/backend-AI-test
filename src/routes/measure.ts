@@ -38,7 +38,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
             return BadRequest(reply, firstError.message.startsWith("Erro") ? firstError.message : "Um ou mais parâmetros estão incorretos ou não foram informados", "INVALID_DATA", 400)
         }
 
-        //Se a validação for bem sucedida, extrai os valores
+        //Se a validação for bem sucedida, extrai os valores do corpo da requisição
         const { image, customer_code, measure_datetime, measure_type } = createMeasureBody.parse(request.body);
 
         //Validações dos parâmetros extraidos
@@ -114,7 +114,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
             return BadRequest(reply, firstError.message.startsWith("Erro") ? firstError.message : "Um ou mais parâmetros estão incorretos ou não foram informados", "INVALID_DATA", 400)
         }
 
-        //Se a validação for bem sucedida, extrai os valores
+        //Se a validação for bem sucedida, extrai os valores do corpo da requisição
         const { measure_uuid, confirmed_value } = createMeasureBody.parse(request.body);
 
         //Validações dos parâmetros extraidos
@@ -130,7 +130,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         })
 
         if(!measureUuidExist){
-            return BadRequest(reply, "Leitura do mês já realizada", "MEASURE_NOT_FOUND", 404)
+            return BadRequest(reply, "Leitura do mês não encontrada", "MEASURE_NOT_FOUND", 404)
         }
 
         //Verifica se o código de leitura já foi confirmado
