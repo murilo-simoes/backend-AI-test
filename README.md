@@ -9,7 +9,7 @@ Para começar a Instalação, clone o repositório na sua maquina local.
 Para clonar o repositório, abra o terminal e execute o seguinte comando:
 
 ```bash
-  git clone https://github.com/murilo-simoes/backend-shopper-test.git
+  git clone https://github.com/murilo-simoes/backend-gemini-test.git
 ```
 
 Na pasta raiz do projeto, crie um arquivo .env e coloque sua chave da API do Gemini igual no exemplo abaixo:
