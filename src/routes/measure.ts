@@ -74,9 +74,9 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         const measure = await prisma.measure.create({
             data: {
                 image_url: image_url,
-                customer_code: customer_code,
+                customer_code: customer_code.trim(),
                 datetime: measure_datetime,
-                type: measure_type as Type,
+                type: measure_type.trim() as Type,
                 has_confirmed: false,
                 value: measure_value
             }
@@ -141,7 +141,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         //Salva no banco de dados o novo valor informado
         await prisma.measure.update({
             where:{
-                uuid:measure_uuid,
+                uuid:measure_uuid.trim(),
             },
             data:{
                     value:confirmed_value,
@@ -189,7 +189,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         const measures = await prisma.measure.findMany({
             where:{
                 customer_code:customer_code.trim(),
-                type: measure_type! as Type
+                type: measure_type!.trim() as Type
             }
         })
 
