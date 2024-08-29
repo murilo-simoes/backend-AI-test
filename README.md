@@ -1,4 +1,4 @@
-# Back-end Shopper - Teste Técnico
+# Back-end - Gemini API
 
 ## Instalação do Projeto
 
