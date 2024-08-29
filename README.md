@@ -38,22 +38,26 @@ Responsável por receber uma imagem em base 64, consultar o Gemini e retornar a
 medida lida pela API
 
 Exemplo de corpo da requisição:
+```json
 {
-	"customer_code": "123456",
-	"measure_datetime": "2024-08-27T15:45:00Z",
+  "customer_code": "123456",
+  "measure_datetime": "2024-08-27T15:45:00Z",
   "measure_type": "WATER" ou "GAS",
   "image": "base64"
 }
+```
 
 ### PATCH - http://localhost:3000/confirm
 
 Responsável por confirmar ou corrigir o valor lido pelo LLM
 
 Exemplo de corpo da requisição:
+```json
 {
-	"measure_uuid": "b591f5f3-f6a9-4af6-a5ca-35614f27e17d",
+  "measure_uuid": "b591f5f3-f6a9-4af6-a5ca-35614f27e17d",
   "confirmed_value": 542
 }
+```
 
 ### GET - http://localhost:3000/:customer_code/list?measure_type={"WATER" ou "GAS"}
 
