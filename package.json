@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.ts",
+    "start": "node src/server.ts",
     "dev": "ts-node-dev src/server.ts",
     "prisma:migrate": "prisma migrate dev"
   },

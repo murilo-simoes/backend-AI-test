@@ -51,7 +51,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         const month : number = measure_datetime.getMonth() + 1;
         const measureExist = await prisma.measure.findFirst({
             where: {
-                customer_code: customer_code,
+                customer_code: customer_code.trim(),
                 datetime: {
                     gte: new Date(`${year}-${month.toString().padStart(2, '0')}-01T00:00:00Z`),
                     lt: new Date(`${month === 12 ? year + 1 : year}-${month === 12 ? '01' : (month + 1).toString().padStart(2, '0')}-01T00:00:00Z`)
@@ -141,7 +141,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         //Salva no banco de dados o novo valor informado
         await prisma.measure.update({
             where:{
-                uuid:measure_uuid.trim(),
+                uuid:measure_uuid,
             },
             data:{
                     value:confirmed_value,
@@ -189,7 +189,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
         const measures = await prisma.measure.findMany({
             where:{
                 customer_code:customer_code.trim(),
-                type: measure_type!.trim() as Type
+                type: measure_type! as Type
             }
         })
 
@@ -201,7 +201,7 @@ export async function MeasureRoutes(fastify: FastifyInstance) {
 
         //Retorna o resultado
         return reply.status(200).send({
-            customer_code: customer_code,
+            customer_code: customer_code.trim(),
             measures: measures.map((item) => {
               return {
                 measure_uuid: item.uuid,
