@@ -1,5 +1,14 @@
 # Back-end - Gemini API
 
+## Tecnologias Utilizadas
+
+  - `Node.Js`
+  - `Prisma`
+  - `TypeScrip`
+  - `Fastify`
+  - `Postgresql`
+  - `Cors`
+
 ## Instalação do Projeto
 
 Para a instalação projeto é necessário ter o Docker e o Git instalado no computador.
