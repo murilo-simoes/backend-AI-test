@@ -8,6 +8,7 @@
   - `Fastify`
   - `Postgresql`
   - `Cors`
+  - `Zod`
 
 ## Instalação do Projeto
 
